@@ -7,7 +7,9 @@ from pydantic import BaseModel  # Para representar entidades en codigo
 # FastAPI
 from fastapi import FastAPI 
 from fastapi import Body    # Class to know if a parameter is type Bodyself.
-from fastapi import Query   # Class to asigment a Query parameter or a constrains parameter.
+from fastapi import Query   # Class to asigment a Query parameter or a constrains parameters.
+from fastapi import Path    # To create Path parameters.
+# from fastapi import Body, Query, Path
 
 app = FastAPI()
 
@@ -34,12 +36,34 @@ def create_person(
 
 @app.get("/person/details") # 
 def show_person(
-        name: Optional[str] = Query(None, min_length = 1, max_length = 30),
+        name: Optional[str] = Query(
+        None, 
+        min_length = 1, 
+        max_length = 30,
+        title = "Person name",
+        description = "This is a name person. Its between 1 - 30 characters"
+        ),
         age: int = Query(
-            ..., ge = 0, le = 100)   # Query parameter always must be Optional but there's a exception like a this where Query is required
+            ..., 
+            ge = 0, 
+            le = 100,
+            title = "Person age",    # Attribute name's description.  
+            description = "This is a age person. Its between 0 - 100. Its required"   
+            )   # Query parameter always must be Optional but there's a exception like a this where Query is requireds
         ):
     return {name: age}
 
 # Validations: Path parameter. these are parameters requiredsself.
 
-
+@app.get("/person/details/{person_ID}")  # A path parameter it sets between {}
+def show_person(
+        person_ID: int = Path(
+        ...,
+        ge = 100000, 
+        lt = 999999,
+        length = 6,
+        title = "Person's ID",
+        description = "This is the ID that must've a person with a length 6 numbers."
+        )
+    ):
+    return {person_ID: "It exists"}
