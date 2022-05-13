@@ -6,7 +6,7 @@ from pydantic import BaseModel  # Para representar entidades en codigo
 
 # FastAPI
 from fastapi import FastAPI 
-from fastapi import Body    # Class to know if a parameter is type Bodyself.
+from fastapi import Body    # Class to know if a parameter is type Body.
 from fastapi import Query   # Class to asigment a Query parameter or a constrains parameters.
 from fastapi import Path    # To create Path parameters.
 # from fastapi import Body, Query, Path
@@ -14,6 +14,11 @@ from fastapi import Path    # To create Path parameters.
 app = FastAPI()
 
 # Models
+class Location(BaseModel):
+    city: str
+    state: str
+    country: str
+
 class Person(BaseModel): # Subclase Person that inherits to class BaseModel  
     first_name: str
     last_name: str
@@ -26,7 +31,6 @@ def home():
     return {"Hello": "World"}
 
 # Request and Response Body
-
 @app.post("/person/new")    # Decorator that sends a request(post) to server with url "/person/new". It can access. 
 def create_person(
         person: Person = Body(...)):  # Request Body. def create_person(name_parameter: type_parameter = is_Body(... mains that it's required))
@@ -53,7 +57,7 @@ def show_person(
         ):
     return {name: age}
 
-# Validations: Path parameter. these are parameters requiredsself.
+# Validations: Path parameter.These are parameters requireds.
 
 @app.get("/person/details/{person_ID}")  # A path parameter it sets between {}
 def show_person(
@@ -63,7 +67,25 @@ def show_person(
         lt = 999999,
         length = 6,
         title = "Person's ID",
-        description = "This is the ID that must've a person with a length 6 numbers."
+        description = "This is the ID that must've a person. With a length 6 numbers."
         )
     ):
     return {person_ID: "It exists"}
+
+# Validations: Request Body.
+
+@app.put("/person/{person_ID}")
+def update_person(
+        person_ID: int = Path(
+            ...,
+            title = "Person_ID",
+            description = "This is a person ID"
+            gt = 100000,
+            le = 999999
+        ),
+        person: Person = Body(...),
+        location: Location = Body(...)
+    ):
+        result = person.dict()
+        result = update(location.dict())
+        return person
