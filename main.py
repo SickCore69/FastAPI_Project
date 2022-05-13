@@ -1,8 +1,10 @@
 # Python
 from typing import Optional
+from enum import Enum   # To Enumarate hair color 
 
 # Pydantic
 from pydantic import BaseModel  # Para representar entidades en codigo
+from pydantic import Field  # This class equal to Body, Query and Path but this is use to validate BaseModel's attibutes.
 
 # FastAPI
 from fastapi import FastAPI 
@@ -14,17 +16,42 @@ from fastapi import Path    # To create Path parameters.
 app = FastAPI()
 
 # Models
+
+class HairColor(Enum):
+    brown = "brown"
+    blonde = "blonde"
+    red = "red" 
+    black = "black"
+    white = "white"
+
 class Location(BaseModel):
     city: str
     state: str
     country: str
 
 class Person(BaseModel): # Subclase Person that inherits to class BaseModel  
-    first_name: str
-    last_name: str
-    age: int 
-    is_married: Optional[bool] = None
-    length: Optional[int] = None
+    first_name: str = Field(
+            ...,
+            min_length = 1,
+            max_length = 15,
+            title = "First name",
+            description = "This is first name."
+            )
+    last_name: str = Field(
+            ...,
+            min_length = 1, 
+            max_length = 15,
+            title = "last_name",
+            description = "This is last name."
+            )
+    age: int = Field(
+            ...,
+            gt = 0,
+            le = 100
+            )
+    is_married: Optional[bool] = Field(default= None)
+    length: Optional[int] = Field(default = None)
+    heir_color: Optional[HairColor] = Field(default = None)
 
 @app.get("/")
 def home():
@@ -89,3 +116,7 @@ def update_person(
         result = person.dict()
         result = update(location.dict())
         return person
+
+# Validations: Models. 
+
+
