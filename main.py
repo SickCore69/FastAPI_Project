@@ -62,16 +62,17 @@ class Person(BaseModel): # Subclase Person that inherits to class BaseModel
             )    
     is_married: Optional[bool] = Field(default = None)
     length: Optional[int] = Field(default = None)
-    heir_color: Optional[HairColor] = Field(default = None)
+    hair_color: Optional[HairColor] = Field(default = None)
 
     class Config:   # To automatic test with default dates 
         schema_extra = {
                 "example": {
                     "first_name": "Bofo",
                     "last_name": "Ortiz",
-                    "age": "44",
+                    "age": 44,
                     "hair_color": "black",
-                    "is_married": "True"
+                    "is_married": "True",
+                    "length": 180
                     } 
                 }
       
@@ -94,14 +95,16 @@ def show_person(
         min_length = 1, 
         max_length = 30,
         title = "Person name",
-        description = "This is a name person. Its between 1 - 30 characters"
+        description = "This is a name person. Its between 1 - 30 characters", 
+        example = "Lucas"
         ),
         age: int = Query(
             ..., 
             ge = 0, 
             le = 100,
             title = "Person age",    # Attribute name's description.  
-            description = "This is a age person. Its between 0 - 100. Its required"   
+            description = "This is a age person. Its between 0 - 100. Its required",
+            example = 32
             )   # Query parameter always must be Optional but there's a exception like a this where Query is requireds
         ):
     return {name: age}
@@ -116,7 +119,8 @@ def show_person(
         lt = 999999,
         length = 6,
         title = "Person's ID",
-        description = "This is the ID that must've a person. With a length 6 numbers."
+        description = "This is the ID that must've a person. With a length 6 numbers.",
+        example = 184139
         )
     ):
     return {person_ID: "It exists"}
@@ -130,13 +134,15 @@ def update_person(
             title = "Person_ID",
             description = "This is a person ID",
             gt = 100000,
-            le = 999999
+            le = 999999,
+            example = 168894
         ),
         person: Person = Body(...),
+
         location: Location = Body(...)       
     ):
         result = person.dict()
-        result = update(location.dict())
+        result.update(location.dict())
         return result 
 
 # Validations: Models. 
