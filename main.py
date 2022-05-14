@@ -5,6 +5,7 @@ from enum import Enum   # To Enumarate hair color
 # Pydantic
 from pydantic import BaseModel  # Para representar entidades en codigo
 from pydantic import Field  # This class equal to Body, Query and Path but this is use to validate BaseModel's attibutes.
+from pydantic import EmailStr   # Validate if a string is a email. 
 
 # FastAPI
 from fastapi import FastAPI 
@@ -29,6 +30,16 @@ class Location(BaseModel):
     state: str
     country: str
 
+    class Config:
+        schema_extra = {
+                "example": {
+                    "city": "CDMX",
+                    "state": "Estado de Mexico",
+                    "country": "Mexico"
+                    }
+                }
+
+
 class Person(BaseModel): # Subclase Person that inherits to class BaseModel  
     first_name: str = Field(
             ...,
@@ -36,7 +47,7 @@ class Person(BaseModel): # Subclase Person that inherits to class BaseModel
             max_length = 15,
             title = "First name",
             description = "This is first name."
-            )
+            )    
     last_name: str = Field(
             ...,
             min_length = 1, 
@@ -48,11 +59,22 @@ class Person(BaseModel): # Subclase Person that inherits to class BaseModel
             ...,
             gt = 0,
             le = 100
-            )
-    is_married: Optional[bool] = Field(default= None)
+            )    
+    is_married: Optional[bool] = Field(default = None)
     length: Optional[int] = Field(default = None)
     heir_color: Optional[HairColor] = Field(default = None)
 
+    class Config:   # To automatic test with default dates 
+        schema_extra = {
+                "example": {
+                    "first_name": "Bofo",
+                    "last_name": "Ortiz",
+                    "age": "44",
+                    "hair_color": "black",
+                    "is_married": "True"
+                    } 
+                }
+      
 @app.get("/")
 def home():
     return {"Hello": "World"}
@@ -106,16 +128,16 @@ def update_person(
         person_ID: int = Path(
             ...,
             title = "Person_ID",
-            description = "This is a person ID"
+            description = "This is a person ID",
             gt = 100000,
             le = 999999
         ),
         person: Person = Body(...),
-        location: Location = Body(...)
+        location: Location = Body(...)       
     ):
         result = person.dict()
         result = update(location.dict())
-        return person
+        return result 
 
 # Validations: Models. 
 
