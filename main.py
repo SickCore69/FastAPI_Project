@@ -39,7 +39,6 @@ class Location(BaseModel):
                     }
                 }
 
-
 class Person(BaseModel): # Subclase Person that inherits to class BaseModel  
     first_name: str = Field(
             ...,
@@ -63,6 +62,10 @@ class Person(BaseModel): # Subclase Person that inherits to class BaseModel
     is_married: Optional[bool] = Field(default = None)
     length: Optional[int] = Field(default = None)
     hair_color: Optional[HairColor] = Field(default = None)
+    password: str = Field(
+            ...,
+            min_length = 8
+            )
 
     class Config:   # To automatic test with default dates 
         schema_extra = {
@@ -72,16 +75,41 @@ class Person(BaseModel): # Subclase Person that inherits to class BaseModel
                     "age": 44,
                     "hair_color": "black",
                     "is_married": "True",
-                    "length": 180
+                    "length": 180,
+                    "password": "DkvR5%6&"
                     } 
                 }
-      
+
+class PersonOut(BaseModel):
+    first_name: str = Field(
+            ...,
+            min_length = 1,
+            max_length = 15,
+            title = "First name",
+            description = "This is first name."
+            )    
+    last_name: str = Field(
+            ...,
+            min_length = 1, 
+            max_length = 15,
+            title = "last_name",
+            description = "This is last name."
+            )
+    age: int = Field(
+            ...,
+            gt = 0,
+            le = 100
+            )    
+    is_married: Optional[bool] = Field(default = None)
+    length: Optional[int] = Field(default = None)
+    hair_color: Optional[HairColor] = Field(default = None)
+
 @app.get("/")
 def home():
     return {"Hello": "World"}
 
 # Request and Response Body
-@app.post("/person/new")    # Decorator that sends a request(post) to server with url "/person/new". It can access. 
+@app.post("/person/new", response_model = PersonOut)    # Decorator that sends a request(post) to server with url "/person/new". It can access. 
 def create_person(
         person: Person = Body(...)):  # Request Body. def create_person(name_parameter: type_parameter = is_Body(... mains that it's required))
     return person
