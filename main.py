@@ -8,11 +8,13 @@ from pydantic import Field  # This class equal to Body, Query and Path but this 
 from pydantic import EmailStr   # Validate if a string is a email. 
 
 # FastAPI
-from fastapi import FastAPI 
+from fastapi import FastAPI
+from fastapi import status  # Put the status code of a request. Its put in the path operation decorator.
 from fastapi import Body    # Class to know if a parameter is type Body.
 from fastapi import Query   # Class to asigment a Query parameter or a constrains parameters.
 from fastapi import Path    # To create Path parameters.
-# from fastapi import Body, Query, Path
+# from fastapi import Body, Query, Path, Form
+from fastapi import Form    # To can use forms.
 
 app = FastAPI()
 
@@ -82,21 +84,35 @@ class Person(PersonBase): # Subclase Person that inherits to class PersonBase
                 }
 
 class PersonOut(PersonBase):    # Subclass PersonPut that inherits attibutes from super class PersonBase.
-    pass 
+    pass
 
-@app.get("/")
+class LoginOut(BaseModel):
+    username: str = Field(
+    ...,
+    max_length = 20,
+    example = "Dr. Oc"
+    )
+    message: str = Field(default = "Login succesfully")
+
+@app.get(path = "/",
+        status_code = status.HTTP_200_OK
+        )
 def home():
     return {"Hello": "World"}
 
 # Request and Response Body
-@app.post("/person/new", response_model = PersonOut)    # Decorator that sends a request(post) to server with url "/person/new". It can access. 
+@app.post(path = "/person/new",
+        response_model = PersonOut,
+        status_code = status.HTTP_201_CREATED
+        )    # Decorator that sends a request(post) to server with url "/person/new". It can access. 
 def create_person(
         person: Person = Body(...)):  # Request Body. def create_person(name_parameter: type_parameter = is_Body(... mains that it's required))
     return person
 
 # Validations: Query parameter.
 
-@app.get("/person/details") # 
+@app.get(path = "/person/details",
+        status_code = status.HTTP_200_OK) # 
 def show_person(
         name: Optional[str] = Query(
         None, 
@@ -119,7 +135,9 @@ def show_person(
 
 # Validations: Path parameter.These are parameters requireds.
 
-@app.get("/person/details/{person_ID}")  # A path parameter it sets between {}
+@app.get(path = "/person/details/{person_ID}",
+        status_code = status.HTTP_200_OK
+        )  # A path parameter it sets between {}
 def show_person(
         person_ID: int = Path(
         ...,
@@ -135,7 +153,8 @@ def show_person(
 
 # Validations: Request Body.
 
-@app.put("/person/{person_ID}")
+@app.put(path = "/person/{person_ID}",
+        status_code = status.HTTP_200_OK)
 def update_person(
         person_ID: int = Path(
             ...,
@@ -151,8 +170,18 @@ def update_person(
     ):
         result = person.dict()
         result.update(location.dict())
-        return result 
+        return result
 
-# Validations: Models. 
+@app.post(
+path = "/login",
+response_model = LoginOut,
+status_code = status.HTTP_200_OK
+)
+def login(
+username: str = Form(...),
+password: str = Form(...)
+):
+    return LoginOut(username = username)
+
 
 
