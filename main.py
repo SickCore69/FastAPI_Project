@@ -13,14 +13,19 @@ from fastapi import status  # Put the status code of a request. Its put in the p
 from fastapi import Body    # Class to know if a parameter is type Body.
 from fastapi import Query   # Class to asigment a Query parameter or a constrains parameters.
 from fastapi import Path    # To create Path parameters.
-# from fastapi import Body, Query, Path, Form
 from fastapi import Form    # To can use forms.
+from fastapi import Header, Cookie
+# from fastapi import Body, Query, Path, Form, Header, Cookie
 
 app = FastAPI()
 
-# Models
 
+# Models
 class HairColor(Enum):
+    """ HairColor. \n
+    It that inherits attributes from class Enum to enumerate attributes that it has.\n
+    Attibute_name = Data that recieve
+    gray = "gray" """
     brown = "brown"
     blonde = "blonde"
     red = "red" 
@@ -28,11 +33,16 @@ class HairColor(Enum):
     white = "white"
 
 class Location(BaseModel):
+    """ Location.\n
+    Class that has string attributes to know where lives the user or person.
+    """
     city: str
     state: str
     country: str
 
     class Config:
+        """ Class Config 
+        It used to makes schemas or creates examples inside of class """
         schema_extra = {
                 "example": {
                     "city": "CDMX",
@@ -41,6 +51,11 @@ class Location(BaseModel):
                     }
                 }
 class PersonBase(BaseModel):
+    """ PersonBase \n
+    Class to create a person with minimun attibutes.\n
+    attribute_name: type_data = Path Operation(attribute required its represented by ...)\n
+    Path parameters(attributes) in a BaseModel has validations Field or constrains to that an user doesn't put things that aren't allowed.\n
+    Validations Field are ... that means that this attribute is required, then is min_length and max_length to specificate the length minimun and maximun that it can has the attribute. """
     first_name: str = Field(
             ...,
             min_length = 1,
@@ -52,67 +67,108 @@ class PersonBase(BaseModel):
             ...,
             min_length = 1, 
             max_length = 15,
-            title = "last_name",
+            title = "Last name",
             description = "This is last name."
             )
     age: int = Field(
             ...,
             gt = 0,
-            le = 100
+            le = 100,
+            title = "Age",
+            description = "This is the age of the person."
             )    
-    is_married: Optional[bool] = Field(default = None)
-    length: Optional[int] = Field(default = None)
-    hair_color: Optional[HairColor] = Field(default = None)
+    is_married: Optional[bool] = Field(
+    default = None,
+    title = "Is married?",
+    description = "To know if person is married or not"
+    )
+    height: Optional[int] = Field(
+    default = None,
+    title = "Height",
+    description = "Person height."
+    )
+    hair_color: Optional[HairColor] = Field(
+    default = None,
+    title = "Hair color",
+    description = "Person hair color."
+    )
 
-class Person(PersonBase): # Subclase Person that inherits to class PersonBase     
+    class Config:   # To automatic test with default dates 
+        """ Class Config.\n
+        Is to create examples inside of a class to faster test """    
+        schema_extra = {
+                "example": {
+                    "first_name": "Mark",
+                    "last_name": "Pole",
+                    "age": 44,
+                    "hair_color": "black",
+                    "is_married": "True",
+                    "height": 180,
+                    "password": "DkvR5%6&"
+                    } 
+                }
+
+class Person(PersonBase): 
+    """ Person. \n
+    Subclass that inherits all attributes from class PersonBase also it has its our attibute that doesn't share.\n
+    first_name, last_name, age, hair_color, height and is_married from PersonBase and password it's an own attribute.\n
+    return: Mark, Pole, 44, black, 180, True and DkvR5%6& """       
     password: str = Field(
             ...,
             min_length = 8
             )
 
-    class Config:   # To automatic test with default dates 
-        schema_extra = {
-                "example": {
-                    "first_name": "Bofo",
-                    "last_name": "Ortiz",
-                    "age": 44,
-                    "hair_color": "black",
-                    "is_married": "True",
-                    "length": 180,
-                    "password": "DkvR5%6&"
-                    } 
-                }
-
-class PersonOut(PersonBase):    # Subclass PersonPut that inherits attibutes from super class PersonBase.
+    
+class PersonOut(PersonBase):    
+    """ Person Out.\n
+    Subclass PersonOut that inherits attibutes from super class PersonBase.\n
+    first_name, last_name, age, hair_color, height and is_married from PersonBase.\n
+    return: Mark, Pole, 44, black, 180, True """
     pass
 
 class LoginOut(BaseModel):
+    """ Login Out.\n
+    Class for the user can login in API. It isn't has the password by security because loginOut is the out that will show to person.\n 
+    username, message\n
+    return {"username":"Any username greater to 20 characters", "massage":"Login succesfully"} """
     username: str = Field(
     ...,
     max_length = 20,
+    title = "Username",
+    description = "This is person's username to can log in. ",
     example = "Dr. Oc"
     )
     message: str = Field(default = "Login succesfully")
 
-@app.get(path = "/",
-        status_code = status.HTTP_200_OK
-        )
+@app.get(
+path = "/",
+status_code = status.HTTP_200_OK
+)
 def home():
+    """ Home\n
+    Path Operation decorator to go at Home. Path, route or endpoint to access at these place("/").\n
+    Function just return a json {"Hello":"World"} """
     return {"Hello": "World"}
+
 
 # Request and Response Body
 @app.post(path = "/person/new",
         response_model = PersonOut,
         status_code = status.HTTP_201_CREATED
-        )    # Decorator that sends a request(post) to server with url "/person/new". It can access. 
-def create_person(
-        person: Person = Body(...)):  # Request Body. def create_person(name_parameter: type_parameter = is_Body(... mains that it's required))
-    return person
+        )    # Decorator that sends a request(post) to server with url "/person/new". You can access with one. 
+def create_person(        
+        person: Person = Body(...)
+    ):
+        """ Create Person
+        Function to create a new person. Attribute person its type Person, its meaning that inherits attributes from class Person and then return the attribute person or the person created. this is a request body from client to sever. \n 
+        recieve: All attibutes from class Person to can create a person.\n
+        return: To person created in this case whould be PersonOut """
+        return person
+
 
 # Validations: Query parameter.
-
 @app.get(path = "/person/details",
-        status_code = status.HTTP_200_OK) # 
+        status_code = status.HTTP_200_OK) 
 def show_person(
         name: Optional[str] = Query(
         None, 
@@ -133,8 +189,8 @@ def show_person(
         ):
     return {name: age}
 
-# Validations: Path parameter.These are parameters requireds.
 
+# Validations: Path parameter.These are parameters requireds.
 @app.get(path = "/person/details/{person_ID}",
         status_code = status.HTTP_200_OK
         )  # A path parameter it sets between {}
@@ -151,8 +207,8 @@ def show_person(
     ):
     return {person_ID: "It exists"}
 
-# Validations: Request Body.
 
+# Validations: Request Body.
 @app.put(path = "/person/{person_ID}",
         status_code = status.HTTP_200_OK)
 def update_person(
@@ -172,6 +228,8 @@ def update_person(
         result.update(location.dict())
         return result
 
+
+# Forms
 @app.post(
 path = "/login",
 response_model = LoginOut,
@@ -184,4 +242,34 @@ password: str = Form(...)
     return LoginOut(username = username)
 
 
+# Cookies and Headres Parameters
+@app.post(
+path = "/contact",
+status_code = status.HTTP_200_OK
+)
+def contact(
+first_name: str = Form(
+...,
+min_length = 1,
+max_length = 20
+),
+last_name: str = Form(
+...,
+min_length = 1,
+max_length = 25
+),
+number_phone: int = Form(
+...,
+lt = 9999999999,
+gt = 1111111111
+),
+email: EmailStr = Form(...,),
+message: str = Form(
+...,
+min_length = 20
+),
+user_agent: Optional[str] = Header(default = None),
+ads: Optional[str] = Cookie(default = None)
+):
+    return user_agent
 
