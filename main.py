@@ -14,7 +14,7 @@ from fastapi import Body    # Class to know if a parameter is type Body.
 from fastapi import Query   # Class to asigment a Query parameter or a constrains parameters.
 from fastapi import Path    # To create Path parameters.
 from fastapi import Form    # To can use forms.
-from fastapi import Header, Cookie
+from fastapi import Header, Cookie, UploadFile, File
 # from fastapi import Body, Query, Path, Form, Header, Cookie
 
 app = FastAPI()
@@ -122,6 +122,7 @@ class Person(PersonBase):
 class PersonOut(PersonBase):    
     """ Person Out.\n
     Subclass PersonOut that inherits attibutes from super class PersonBase.\n
+ 2 files changed, 116 insertions(+), 28 deletions(-)
     first_name, last_name, age, hair_color, height and is_married from PersonBase.\n
     return: Mark, Pole, 44, black, 180, True """
     pass
@@ -272,4 +273,19 @@ user_agent: Optional[str] = Header(default = None),
 ads: Optional[str] = Cookie(default = None)
 ):
     return user_agent
+
+
+# Files
+@app.post(
+        path = "/post-image",
+        status_code = status.HTTP_200_OK
+        )
+def post_image(
+        image: UploadFile = File(...)
+        ):
+    return {
+            "Filename": image.filename,
+            "Format": image.content_type,
+            "Size(Kb)": round(len(image.file.read())/1024, ndigits = 2)
+            }
 
