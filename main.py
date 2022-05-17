@@ -144,7 +144,8 @@ class LoginOut(BaseModel):
 
 @app.get(
 path = "/",
-status_code = status.HTTP_200_OK
+status_code = status.HTTP_200_OK,
+tags = ["Home"]
 )
 def home():
     """ Home\n
@@ -156,7 +157,8 @@ def home():
 # Request and Response Body
 @app.post(path = "/person/new",
         response_model = PersonOut,
-        status_code = status.HTTP_201_CREATED
+        status_code = status.HTTP_201_CREATED,
+        tags = ["Persons"]
         )    # Decorator that sends a request(post) to server with url "/person/new". You can access with one. 
 def create_person(        
         person: Person = Body(...)
@@ -170,7 +172,9 @@ def create_person(
 
 # Validations: Query parameter.
 @app.get(path = "/person/details",
-        status_code = status.HTTP_200_OK) 
+        status_code = status.HTTP_200_OK,
+        tags = ["Persons"]
+        )       
 def show_person(
         name: Optional[str] = Query(
         None, 
@@ -195,7 +199,8 @@ def show_person(
 # Validations: Path parameter.These are parameters requireds.
 # persons = [1,2,3,4,5]
 @app.get(path = "/person/details/{person_ID}",
-        status_code = status.HTTP_200_OK
+        status_code = status.HTTP_200_OK,
+        tags = ["Persons"]
         )  # A path parameter it sets between {}
 def show_person(
         person_ID: int = Path(
@@ -218,7 +223,9 @@ def show_person(
 
 # Validations: Request Body.
 @app.put(path = "/person/{person_ID}",
-        status_code = status.HTTP_200_OK)
+        status_code = status.HTTP_200_OK,
+        tags = ["Persons"]
+        )
 def update_person(
         person_ID: int = Path(
             ...,
@@ -241,7 +248,8 @@ def update_person(
 @app.post(
 path = "/login",
 response_model = LoginOut,
-status_code = status.HTTP_200_OK
+status_code = status.HTTP_200_OK,
+tags = ["Login"]
 )
 def login(
 username: str = Form(...),
@@ -253,7 +261,8 @@ password: str = Form(...)
 # Cookies and Headres Parameters
 @app.post(
 path = "/contact",
-status_code = status.HTTP_200_OK
+status_code = status.HTTP_200_OK,
+tags = ["Contact"]
 )
 def contact(
 first_name: str = Form(
@@ -285,7 +294,8 @@ ads: Optional[str] = Cookie(default = None)
 # Files
 @app.post(
         path = "/post-image",
-        status_code = status.HTTP_200_OK
+        status_code = status.HTTP_200_OK,
+        tags = ["Files"]
         )
 def post_image(
         image: UploadFile = File(...)
