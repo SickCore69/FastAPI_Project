@@ -10,6 +10,7 @@ from pydantic import EmailStr   # Validate if a string is a email.
 # FastAPI
 from fastapi import FastAPI
 from fastapi import status  # Put the status code of a request. Its put in the path operation decorator.
+from fastapi import HTTPException 
 from fastapi import Body    # Class to know if a parameter is type Body.
 from fastapi import Query   # Class to asigment a Query parameter or a constrains parameters.
 from fastapi import Path    # To create Path parameters.
@@ -192,6 +193,7 @@ def show_person(
 
 
 # Validations: Path parameter.These are parameters requireds.
+# persons = [1,2,3,4,5]
 @app.get(path = "/person/details/{person_ID}",
         status_code = status.HTTP_200_OK
         )  # A path parameter it sets between {}
@@ -206,6 +208,11 @@ def show_person(
         example = 184139
         )
     ):
+    # if person_ID not in persons:
+        # raise HTTPException(
+        # status_code = status.HTTP_404_NOT_FOUND,
+        # detail = ":This person doesn't exist"
+        # )
     return {person_ID: "It exists"}
 
 
