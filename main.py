@@ -189,7 +189,8 @@ def create_person(
 @app.get(path = "/person/details",
         status_code = status.HTTP_200_OK,
         tags = ["Persons"],
-        summary = "Show person name and age"
+        summary = "Show person name and age",
+        deprecated = True
         )       
 def show_person(
         name: Optional[str] = Query(
